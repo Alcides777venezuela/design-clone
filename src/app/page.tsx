@@ -10,6 +10,8 @@ import {
   Smartphone, Share2, ArrowRight, Star, Sun, Moon,
   ChevronDown, Plus, Quote, Check, Shield
 } from "lucide-react";
+import AuthModal from "@/components/AuthModal";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 /* ================================================================
    3D PHONE
@@ -71,11 +73,11 @@ function AnimatedCounter({ value }: { value: string }) {
 /* ================================================================
    MAGNETIC BUTTON
    ================================================================ */
-function MagneticButton({ children, className = "", href = "#" }: { children: React.ReactNode; className?: string; href?: string }) {
+function MagneticButton({ children, className = "", href = "#", onClick }: { children: React.ReactNode; className?: string; href?: string; onClick?: () => void }) {
   const ref = useRef<HTMLAnchorElement>(null); const [pos, setPos] = useState({ x: 0, y: 0 });
   const handleMouse = (e: React.MouseEvent) => { const rect = ref.current?.getBoundingClientRect(); if (rect) { setPos({ x: (e.clientX - rect.left - rect.width / 2) * 0.3, y: (e.clientY - rect.top - rect.height / 2) * 0.3 }); } };
   const reset = () => setPos({ x: 0, y: 0 });
-  return <motion.a ref={ref} href={href} className={className} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 150, damping: 15 }} onMouseMove={handleMouse} onMouseLeave={reset} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>{children}</motion.a>;
+  return <motion.a ref={ref} href={href} className={className} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 150, damping: 15 }} onMouseMove={handleMouse} onMouseLeave={reset} onClick={onClick} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>{children}</motion.a>;
 }
 
 /* ================================================================
@@ -104,7 +106,7 @@ const FAQS = [
 /* ================================================================
    NAVBAR
    ================================================================ */
-function Navbar({ darkMode, toggleDark }: { darkMode: boolean; toggleDark: () => void }) {
+function Navbar({ darkMode, toggleDark, onAuth }: { darkMode: boolean; toggleDark: () => void; onAuth: (mode: "login" | "register") => void }) {
   const [scrolled, setScrolled] = useState(false); const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => { const onScroll = () => setScrolled(window.scrollY > 40); window.addEventListener("scroll", onScroll, { passive: true }); return () => window.removeEventListener("scroll", onScroll); }, []);
   return (
@@ -126,8 +128,8 @@ function Navbar({ darkMode, toggleDark }: { darkMode: boolean; toggleDark: () =>
             <button onClick={toggleDark} className={`p-2 rounded-lg transition-colors ${darkMode ? "text-white/70 hover:bg-white/5" : "text-gray-600 hover:bg-gray-100"}`}>
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-            <a href="#" className={`hidden sm:block text-sm transition-colors px-3 py-2 ${darkMode ? "text-white/70 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}>Iniciar sesión</a>
-            <MagneticButton className="btn-primary text-white text-sm px-5 py-2 rounded-lg font-medium">Registrarse</MagneticButton>
+            <button onClick={() => onAuth("login")} className={`hidden sm:block text-sm transition-colors px-3 py-2 ${darkMode ? "text-white/70 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}>Iniciar sesión</button>
+            <MagneticButton onClick={() => onAuth("register")} className="btn-primary text-white text-sm px-5 py-2 rounded-lg font-medium">Registrarse</MagneticButton>
             <button className="lg:hidden text-white" onClick={() => setMobileOpen(!mobileOpen)}>{mobileOpen ? <X size={22} /> : <Menu size={22} />}</button>
           </div>
         </div>
@@ -421,14 +423,23 @@ function Footer({ darkMode }: { darkMode: boolean }) {
    ================================================================ */
 export default function Home() {
   const [darkMode, setDarkMode] = useState(true);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
     document.documentElement.style.colorScheme = darkMode ? "dark" : "light";
   }, [darkMode]);
 
+  const openAuth = (mode: "login" | "register") => {
+    setAuthMode(mode);
+    setAuthOpen(true);
+  };
+
   return (
     <main className={`min-h-screen transition-colors duration-500 ${darkMode ? "bg-[#0f1117] text-white" : "bg-white text-gray-900"}`}>
-      <Navbar darkMode={darkMode} toggleDark={() => setDarkMode(!darkMode)} />
+      <Navbar darkMode={darkMode} toggleDark={() => setDarkMode(!darkMode)} onAuth={openAuth} />
       <Hero darkMode={darkMode} />
       <BentoFeatures darkMode={darkMode} />
       <Pricing darkMode={darkMode} />
@@ -436,6 +447,14 @@ export default function Home() {
       <FAQ darkMode={darkMode} />
       <CTA darkMode={darkMode} />
       <Footer darkMode={darkMode} />
+      <WhatsAppButton />
+      <AuthModal
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        mode={authMode}
+        onSwitchMode={setAuthMode}
+        onSuccess={(email) => setUserEmail(email)}
+      />
     </main>
   );
 }
