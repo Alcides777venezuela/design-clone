@@ -1,26 +1,76 @@
+/* Design.com Clone - Tailwind CSS */
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: #3f59f6;
+  --color-primary-hover: #2d44d8;
+  --color-bg: #0f1117;
+  --color-bg-card: #1a1d27;
+  --color-bg-elevated: #242734;
+  --color-text: #ffffff;
+  --color-text-secondary: #8b8fa3;
+  --color-border: #2a2d3a;
+  --color-accent: #6c7bff;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Glass morphism */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Gradient text */
+.text-gradient {
+  background: linear-gradient(135deg, #3f59f6 0%, #6c7bff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card hover */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(63, 89, 246, 0.12);
+}
+
+/* Nav blur */
+.nav-blur {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(15, 17, 23, 0.8);
+}
+
+/* Button primary */
+.btn-primary {
+  background: linear-gradient(135deg, #3f59f6, #2d44d8);
+  transition: all 0.2s ease;
+}
+.btn-primary:hover {
+  box-shadow: 0 8px 25px rgba(63, 89, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-secondary); }
+
+/* Grid background pattern */
+.bg-grid {
+  background-image: 
+    linear-gradient(rgba(63, 89, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 89, 246, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
