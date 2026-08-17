@@ -35,8 +35,14 @@ export default function AuthModal({ open, onClose, mode, onSwitchMode, onSuccess
           password,
           options: { data: { full_name: name } },
         });
-        if (signUpError) throw signUpError;
+        if (signUpError) {
+          throw signUpError;
+        }
         if (data.user) {
+          // Limpiar campos después del registro exitoso
+          setEmail("");
+          setPassword("");
+          setName("");
           onSuccess(email);
           onClose();
         }
@@ -47,12 +53,26 @@ export default function AuthModal({ open, onClose, mode, onSwitchMode, onSuccess
         });
         if (signInError) throw signInError;
         if (data.user) {
+          setEmail("");
+          setPassword("");
           onSuccess(email);
           onClose();
         }
       }
     } catch (err: any) {
-      setError(err.message || "Ocurrió un error. Intenta de nuevo.");
+      // Traducir errores comunes a español
+      const msg = err.message || "Ocurrió un error. Intenta de nuevo.";
+      if (msg.includes("rate limit")) {
+        setError("Demasiados intentos. Espera 1 hora o usa un email diferente, amigo.");
+      } else if (msg.includes("already registered")) {
+        setError("Este email ya está registrado. Inicia sesión en su lugar.");
+      } else if (msg.includes("Invalid login")) {
+        setError("Email o contraseña incorrectos.");
+      } else if (msg.includes("Password should")) {
+        setError("La contraseña debe tener al menos 6 caracteres.");
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -98,7 +118,7 @@ export default function AuthModal({ open, onClose, mode, onSwitchMode, onSuccess
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
               {mode === "register" && (
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
@@ -107,6 +127,7 @@ export default function AuthModal({ open, onClose, mode, onSwitchMode, onSuccess
                     placeholder="Nombre completo"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    autoComplete="new-name"
                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#3f59f6]/50 transition-colors"
                     required
                   />
@@ -120,6 +141,7 @@ export default function AuthModal({ open, onClose, mode, onSwitchMode, onSuccess
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="new-email"
                   className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#3f59f6]/50 transition-colors"
                   required
                 />
@@ -132,6 +154,7 @@ export default function AuthModal({ open, onClose, mode, onSwitchMode, onSuccess
                   placeholder="Contraseña"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
                   className="w-full pl-10 pr-12 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#3f59f6]/50 transition-colors"
                   required
                   minLength={6}
