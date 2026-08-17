@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { MessageCircle, Copy, Check, ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
+import { MessageCircle, Copy, Check } from "lucide-react";
 
 interface PagoMovilButtonProps {
   planName: string;
@@ -11,25 +11,34 @@ interface PagoMovilButtonProps {
 }
 
 // ================================================================
-// DATOS DE PAGO — CAMBIA ESTOS CON TUS DATOS REALES
+// DATOS DE PAGO — TUS DATOS REALES
 // ================================================================
 const PAYMENT_INFO = {
-  phone: "584120687007",        // Tu WhatsApp
-  pagoMovilPhone: "0412687007", // Tu número de Pago Móvil
-  pagoMovilBank: "Banesco",     // Tu banco
-  pagoMovilCedula: "V-87654321",// Tu cédula
-  bankAccount: "01340000000000000000", // Número de cuenta (si aplica)
-  bankName: "Banesco",
+  phone: "584120687007",            // Tu WhatsApp
+  pagoMovilPhone: "04120687007",    // Tu número de Pago Móvil
+  pagoMovilBank: "Banco Nacional de Crédito (BNC)", // Tu banco
+  pagoMovilCedula: "V-20107451",    // Tu cédula
+  bankAccount: "PIDE TU NÚMERO DE CUENTA", // Tu cuenta (dime el número y lo pongo)
+  bankName: "Banco Nacional de Crédito (BNC)",
 };
 
 export default function PagoMovilButton({ planName, price, annual, className = "" }: PagoMovilButtonProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [tasa, setTasa] = useState<number | null>(null);
+
+  // Obtener la tasa BCV automáticamente
+  useEffect(() => {
+    fetch("https://ve.dolarapi.com/v1/dolares/bcv")
+      .then(r => r.json())
+      .then(d => setTasa(d.promedio))
+      .catch(() => setTasa(45)) // fallback si no carga
+  }, []);
 
   const total = annual ? Math.round(price * 0.8 * 12) : price;
   const period = annual ? "año" : "mes";
   const usd = total;
-  const bsf = Math.round(usd * 35); // Cambia el tipo de cambio según el BCV
+  const bsf = tasa ? Math.round(usd * tasa) : 0;
 
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -66,7 +75,8 @@ export default function PagoMovilButton({ planName, price, annual, className = "
         <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
           <div className="text-center mb-2">
             <div className="text-lg font-bold">Plan {planName}</div>
-            <div className="text-sm text-white/60">${usd} USD ({period}) ≈ Bs. {bsf.toLocaleString()}</div>
+            <div className="text-sm text-white/60">${usd} USD ({period}) {tasa ? <>≈ Bs. {bsf.toLocaleString()}</> : null}</div>
+            {tasa && <div className="text-[10px] text-white/30 mt-1">Tasa BCV: Bs. {tasa.toFixed(2)}/$</div>}
           </div>
 
           {/* Pago Móvil */}
