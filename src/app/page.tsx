@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import CheckoutButton from "@/components/CheckoutButton";
+import PagoMovilButton from "@/components/PagoMovilButton";
 
 /* ================================================================
    3D PHONE
@@ -275,9 +275,8 @@ function Pricing({ darkMode }: { darkMode: boolean }) {
                   <li key={f} className="flex items-start gap-2"><Check className="w-4 h-4 text-green-400 mt-0.5 shrink-0" /><span className={`text-sm ${darkMode ? "text-white/70" : "text-gray-600"}`}>{f}</span></li>
                 ))}
               </ul>
-              <CheckoutButton
+              <PagoMovilButton
                 planName={plan.name}
-                priceId={plan.stripeId}
                 price={plan.price}
                 annual={annual}
                 className={plan.popular ? "btn-primary text-white" : `glass ${darkMode ? "text-white" : "text-gray-900"}`}
