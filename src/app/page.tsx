@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import CheckoutButton from "@/components/CheckoutButton";
 
 /* ================================================================
    3D PHONE
@@ -85,9 +86,8 @@ function MagneticButton({ children, className = "", href = "#", onClick }: { chi
    DATA
    ================================================================ */
 const PLANS = [
-  { name: "Gratis", price: 0, features: ["1 link en bio", "Plantillas básicas", "Estadísticas limitadas", "Soporte por email"], popular: false },
-  { name: "Pro", price: 9, features: ["Links ilimitados", "Todas las plantillas", "Estadísticas avanzadas", "Soporte prioritario", "Sin marca de agua"], popular: true },
-  { name: "Empresa", price: 29, features: ["Todo lo de Pro", "Múltiples equipos", "API personalizada", "Soporte 24/7", "IA avanzada", "Personalización total"], popular: false },
+  { name: "Pro", price: 9, features: ["Links ilimitados", "Todas las plantillas", "Estadísticas avanzadas", "Soporte prioritario", "Sin marca de agua"], popular: false, stripeId: "price_pro" },
+  { name: "Empresa", price: 29, features: ["Todo lo de Pro", "Múltiples equipos", "API personalizada", "Soporte 24/7", "IA avanzada", "Personalización total"], popular: true, stripeId: "price_empresa" },
 ];
 
 const TESTIMONIALS = [
@@ -254,13 +254,13 @@ function Pricing({ darkMode }: { darkMode: boolean }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
           <h2 className={`text-3xl sm:text-4xl font-bold mb-4 ${darkMode ? "text-white" : "text-gray-900"}`}>Precios simples</h2>
-          <p className={`max-w-lg mx-auto mb-6 ${darkMode ? "text-white/50" : "text-gray-500"}`}>Empieza gratis, escala cuando quieras.</p>
+          <p className={`max-w-lg mx-auto mb-6 ${darkMode ? "text-white/50" : "text-gray-500"}`}>Elige el plan perfecto para ti. Pago seguro con Stripe.</p>
           <div className="inline-flex items-center gap-3 p-1 rounded-full glass">
             <button onClick={() => setAnnual(false)} className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${!annual ? "btn-primary text-white" : `${darkMode ? "text-white/70" : "text-gray-600"}`}`}>Mensual</button>
             <button onClick={() => setAnnual(true)} className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${annual ? "btn-primary text-white" : `${darkMode ? "text-white/70" : "text-gray-600"}`}`}>Anual <span className="text-xs opacity-70">-20%</span></button>
           </div>
         </motion.div>
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {PLANS.map((plan, i) => (
             <motion.div key={plan.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
               className={`relative rounded-2xl p-8 card-hover ${plan.popular ? "glass border-[#3f59f6]/30 scale-105" : `glass ${darkMode ? "" : "bg-white/80"}`}`}>
@@ -269,16 +269,19 @@ function Pricing({ darkMode }: { darkMode: boolean }) {
               <div className="mb-6">
                 <span className={`text-4xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>${annual ? Math.round(plan.price * 0.8 * 12) : plan.price}</span>
                 <span className={`text-sm ${darkMode ? "text-white/50" : "text-gray-500"}`}>/{annual ? "año" : "mes"}</span>
-                {plan.price === 0 && <span className="text-sm text-green-400 ml-2">Siempre gratis</span>}
               </div>
               <ul className="space-y-3 mb-8">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-start gap-2"><Check className="w-4 h-4 text-green-400 mt-0.5 shrink-0" /><span className={`text-sm ${darkMode ? "text-white/70" : "text-gray-600"}`}>{f}</span></li>
                 ))}
               </ul>
-              <MagneticButton className={`w-full py-3 rounded-xl font-medium text-sm text-center block ${plan.popular ? "btn-primary text-white" : `glass ${darkMode ? "text-white" : "text-gray-900"}`}`}>
-                {plan.price === 0 ? "Empezar gratis" : "Elegir plan"}
-              </MagneticButton>
+              <CheckoutButton
+                planName={plan.name}
+                priceId={plan.stripeId}
+                price={plan.price}
+                annual={annual}
+                className={plan.popular ? "btn-primary text-white" : `glass ${darkMode ? "text-white" : "text-gray-900"}`}
+              />
             </motion.div>
           ))}
         </div>
