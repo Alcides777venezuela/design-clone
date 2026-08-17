@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
@@ -426,6 +427,7 @@ export default function Home() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
@@ -435,6 +437,12 @@ export default function Home() {
   const openAuth = (mode: "login" | "register") => {
     setAuthMode(mode);
     setAuthOpen(true);
+  };
+
+  const handleAuthSuccess = (email: string) => {
+    setUserEmail(email);
+    // Redirigir al panel después del registro/login
+    router.push("/dashboard");
   };
 
   return (
@@ -453,7 +461,7 @@ export default function Home() {
         onClose={() => setAuthOpen(false)}
         mode={authMode}
         onSwitchMode={setAuthMode}
-        onSuccess={(email) => setUserEmail(email)}
+        onSuccess={handleAuthSuccess}
       />
     </main>
   );
